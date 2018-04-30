@@ -1,0 +1,27 @@
+{
+    "name": "Web-TheFooD",
+    "version": "1.0.0",
+    "description": "EZ WEB APP",
+    "main": "src/index.jsx",
+    "proxy": "http://localhost:8886",
+    "scripts": {
+        "build": "webpack -p",
+        "watch": "nodemon src/server.js",
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "MIT",
+    "dependencies": {
+        "axios": "^0.15.3",
+        "body-parser": "^1.18.2",
+        "express": "^4.16.3",
+        "jquery": "^3.3.1",
+        "moment": "^2.22.1",
+        "uuid": "^3.2.1",
+        "yargs": "^11.0.0"
+    },
+    "devDependencies": {
+        "nodemon": "^1.17.3"
+    }
+}
