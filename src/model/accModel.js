@@ -16,10 +16,9 @@ function getAccount(account){
             if (acc.length > 0 && account) {
 
                 acc = acc.filter(p => {
-                    return p.account.toLowerCase()=== account.toLowerCase()
+                    return p.account==account;
                 });
             }
-
             resolve(acc);
         });
 
@@ -39,23 +38,21 @@ function setAccount(account,password,role){
         getAccount().then(acc => {
             flag = true;
             for(var i in acc){
-              if(acc[i].account.toLowerCase()===newAcc.account.toLowerCase()){
+              if(acc[i].account==newAcc.account){
                   flag = false;
                   break;
               }
-
             }
             if(flag){
               acc = [
                   newAcc,
                   ...acc
               ];
+              fs.writeFile('acc-data.json', JSON.stringify(acc), err => {
+                  if (err) reject(err);
+              });
             }
-            fs.writeFile('acc-data.json', JSON.stringify(acc), err => {
-                if (err) reject(err);
-
-                resolve(newAcc);
-            });
+              resolve(flag);
         });
     });
 }
