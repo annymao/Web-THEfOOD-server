@@ -1,6 +1,7 @@
 const yargs = require('yargs');
 const accModel = require('../model/accModel.js');
 const orderModel = require('../model/orderModel.js');
+const storeModel = require('../model/storeModel.js');
 const bodyParser = require('body-parser')
 const express = require('express');
 const router = express.Router();
@@ -58,6 +59,14 @@ router.post('/order',function(req,res){
   }
   orderModel.setOrder(userId,order).then((newOrder)=>{
     res.json(newOrder);
+  });
+});
+
+//get getStoreName
+router.get('/restaurant',function(req,res){
+  const {id} = req.query;
+  storeModel.getStoreName(id).then(names=>{
+    res.json(names);
   });
 });
 
