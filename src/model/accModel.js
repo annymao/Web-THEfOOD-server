@@ -2,9 +2,24 @@ const os = require('os');
 const fs = require('fs');
 const uuid = require('uuid/v4');
 const moment = require('moment');
+require('../../config.js');
+if(!global.db){
+    const pgp = require('pg-promise')();
+    db = pgp(process.env.DB_URL);
+}
 
 
-function getAccount(account){
+function getAccount(account=' '){
+    
+    const where = account?` Where account ILIKE '%$1:value%'`:'';
+    const sql = `
+        SELECT * 
+        FROM acc
+        ${where}
+    `;
+    return db.any(sql,account);
+    
+    /*
   return new Promise((resolve,reject)=>{
     if(!fs.existsSync('acc-data.json')){
       fs.writeFileSync('acc-data.json','');
@@ -21,8 +36,9 @@ function getAccount(account){
             }
             resolve(acc);
         });
-
     });
+    */
+    
 }
 function setAccount(account,password,role){
   return new Promise((resolve,reject)=>{
