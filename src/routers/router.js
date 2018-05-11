@@ -44,7 +44,7 @@ router.post('/acc',function(req,res){
     err.status = 400;
     throw err;
   }
-  accModel.setAccount(account,password,role).then((newAcc,flag)=>{
+  accModel.setAccount(account,password,role).then((newAcc)=>{
     res.json(newAcc);
   });
 });

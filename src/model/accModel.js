@@ -6,19 +6,19 @@ require('../../config.js');
 if(!global.db){
     const pgp = require('pg-promise')();
     db = pgp(process.env.DB_URL);
-}
+};
 
 
 function getAccount(account=' '){
-    
+
     const where = account?` Where account ILIKE '%$1:value%'`:'';
     const sql = `
-        SELECT * 
+        SELECT *
         FROM acc
         ${where}
     `;
     return db.any(sql,account);
-    
+
     /*
   return new Promise((resolve,reject)=>{
     if(!fs.existsSync('acc-data.json')){
@@ -38,13 +38,26 @@ function getAccount(account=' '){
         });
     });
     */
-    
+
 }
+
 function setAccount(account,password,role){
+
+  const sql = `
+    INSERT INTO acc (account,password,role)
+    SELECT $<account>,$<password>,$<role>
+    WHERE NOT EXISTS (SELECT 1 FROM acc WHERE account=$<account>)
+    RETURNING *
+  `;
+    return db.any(sql,{account,password,role});
+  /*
+  return db.one(sql,{account,password,role});
   return new Promise((resolve,reject)=>{
-    /*if(!fs.existsSync('acc-data.json')){
+
+    if(!fs.existsSync('acc-data.json')){
       fs.writeFileSync('acc-data.json','');
-    }*/
+    }
+
     const newAcc = {
             account: account,
             password:password,
@@ -70,7 +83,7 @@ function setAccount(account,password,role){
             }
               resolve(flag);
         });
-    });
+    });*/
 }
 
 

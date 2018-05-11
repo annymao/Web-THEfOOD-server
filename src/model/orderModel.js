@@ -31,6 +31,8 @@ function setOrder(userId,order){
   });
 }
 function getOrderList(userId){
+
+  /*
   return new Promise((resolve,reject)=>{
     if(!fs.existsSync('orderList-data.json')){
       fs.writeFileSync('orderList-data.json','');
@@ -50,7 +52,7 @@ function getOrderList(userId){
             resolve(orders);
         });
 
-    });
+    });*/
 }
 function getStoreOrder(storeId){
   return new Promise((resolve,reject)=>{
