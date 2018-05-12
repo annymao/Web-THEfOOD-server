@@ -28,10 +28,11 @@ router.get('/store',function(req,res){
     res.json(orders);
   });
 });
+
 //set confirm
 router.post('/confirm',function(req,res){
 
-  orderModel.confirmOrder(req.body.order).then(orders=>{
+  orderModel.confirmOrder(req.body.orderId).then(orders=>{
     res.json(orders);
   });
 });

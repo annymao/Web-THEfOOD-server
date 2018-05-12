@@ -4,6 +4,13 @@ const uuid = require('uuid/v4');
 const moment = require('moment');
 
 function setOrder(userId,order){
+  const sql = `
+    INSERT INTO orders (userId,item,store,number,price,comment)
+    VALUES ($1,$2,$3,$4,$5,$6)
+    RETURNING *
+  `;
+  return db.any(sql,[userId,order.item,order.store,order.number,order.price,""]);
+  /*
   return new Promise((resolve,reject)=>{
     const orderId = Date.now();
     const newOrder = {
@@ -29,9 +36,16 @@ function setOrder(userId,order){
       resolve(newOrder);
     });
   });
+  */
 }
 function getOrderList(userId){
-
+  const where = ` Where userId ILIKE '%$1:value%'`;
+  const sql = `
+      SELECT *
+      FROM orders
+      ${where}
+  `;
+  return db.any(sql,userId);
   /*
   return new Promise((resolve,reject)=>{
     if(!fs.existsSync('orderList-data.json')){
@@ -55,6 +69,14 @@ function getOrderList(userId){
     });*/
 }
 function getStoreOrder(storeId){
+  const where = ` Where store ILIKE '%$1:value%'`;
+  const sql = `
+      SELECT *
+      FROM orders
+      ${where}
+  `;
+  return db.any(sql,storeId);
+  /*
   return new Promise((resolve,reject)=>{
     if(!fs.existsSync('orderList-data.json')){
       fs.writeFileSync('orderList-data.json','');
@@ -76,8 +98,17 @@ function getStoreOrder(storeId){
         });
 
     });
+    */
 }
-function confirmOrder(order){
+function confirmOrder(orderId){
+  const sql = `
+    UPDATE orders
+    SET confirm=TRUE
+    WHERE id=$<orderId>
+    RETURNING *
+  `;
+  return db.any(sql,{orderId});
+  /*
   return new Promise((resolve,reject)=>{
 
     getOrderList().then(orders =>{
@@ -98,6 +129,7 @@ function confirmOrder(order){
       resolve();
     });
   });
+  */
 }
 module.exports = {
     setOrder,

@@ -4,6 +4,15 @@ const uuid = require('uuid/v4');
 const moment = require('moment');
 
 function getStoreName(restaurant){
+
+  const where = restaurant?` Where restaurant ILIKE '%$1:value%'`:'';
+  const sql = `
+      SELECT *
+      FROM store
+      ${where}
+  `;
+  return db.any(sql,restaurant)
+  /*
   return new Promise((resolve,reject)=>{
     if(!fs.existsSync('storeList-data.json')){
       fs.writeFileSync('storeList-data.json','');
@@ -23,6 +32,7 @@ function getStoreName(restaurant){
         });
 
     });
+    */
 }
 module.exports = {
   getStoreName

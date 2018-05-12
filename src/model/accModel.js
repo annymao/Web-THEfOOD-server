@@ -18,7 +18,7 @@ function getAccount(account=' '){
         ${where}
     `;
     return db.any(sql,account);
-
+ 
     /*
   return new Promise((resolve,reject)=>{
     if(!fs.existsSync('acc-data.json')){
