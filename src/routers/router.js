@@ -71,4 +71,18 @@ router.get('/restaurant',function(req,res){
   });
 });
 
+//get getMeal
+router.get('/meals',function(req,res){
+  const {id} = req.query;
+  storeModel.getMealName(id).then(storename=>{
+    let restaurant = storename[0].restaurant;
+    storeModel.getAllMealName(storename[0].name).then(names=>{
+        names.forEach(function(element) {
+          element.restaurant = restaurant;
+        });
+       res.json(names);
+    });
+  });
+});
+
 module.exports = router;

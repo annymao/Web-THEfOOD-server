@@ -34,6 +34,34 @@ function getStoreName(restaurant){
     });
     */
 }
+function getMealName(store){
+  const getstorename = `
+      SELECT name, restaurant
+      FROM store
+      WHERE storeid = $1
+  `;
+  return db.any(getstorename,parseInt(store));
+
+
+/*  const where = `Where storename ILIKE '%${storename}:value%'`;
+  const sql = `
+      SELECT *
+      FROM meals
+      ${where}
+  `;
+  return db.any(sql,store)*/
+}
+function getAllMealName(store){
+  const where = `Where storename ILIKE '%${store}%'`;
+  const sql = `
+      SELECT *
+      FROM meals
+      ${where}
+  `;
+  return db.any(sql,store)
+}
 module.exports = {
-  getStoreName
+  getStoreName,
+  getMealName,
+  getAllMealName
 };
