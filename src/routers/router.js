@@ -10,7 +10,7 @@ router.use(bodyParser.json());
 
 // get accounts
 
-router.get('/acc',function(req,res){
+router.get('/acc',function(req, res) {
   accModel.getAccount(req.query.account).then(acc=>{
     res.json(acc);
   });
@@ -36,16 +36,16 @@ router.post('/confirm',function(req,res){
     res.json(orders);
   });
 });
-//create account
 
-router.post('/acc',function(req,res){
-  const {account,password, role} = req.body;
+//create account
+router.post('/acc',function(req, res){
+  const {account, password, role} = req.body;
   if(!account||!password||!role){
     const err = new Error('account password role is needed');
     err.status = 400;
     throw err;
   }
-  accModel.setAccount(account,password,role).then((newAcc)=>{
+  accModel.setAccount(account, password, role).then((newAcc)=>{
     res.json(newAcc);
   });
 });
