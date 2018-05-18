@@ -6,6 +6,7 @@
 4. Add some function for db 2018.05.07
 5. Change setAccount to db
 6. Change all model to db
+7. Add comfirm account
 ## How To Run
 1. for mac: $ source ./env.sh </br>
 Remeber to change the env
