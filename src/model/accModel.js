@@ -41,7 +41,7 @@ function getAccount(account=' '){
 
 }
 
-function setAccount(account,password,role){
+function setAccount(account, password, role) {
 
   const sql = `
     INSERT INTO acc (account,password,role)
@@ -49,7 +49,7 @@ function setAccount(account,password,role){
     WHERE NOT EXISTS (SELECT 1 FROM acc WHERE account=$<account>)
     RETURNING *
   `;
-    return db.any(sql,{account,password,role});
+    return db.any(sql,{account, password, role});
   /*
   return db.one(sql,{account,password,role});
   return new Promise((resolve,reject)=>{
