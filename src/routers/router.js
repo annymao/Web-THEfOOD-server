@@ -11,10 +11,36 @@ router.use(bodyParser.json());
 // get accounts
 
 router.get('/acc',function(req,res){
-  accModel.getAccount(req.query.account).then(acc=>{
-    res.json(acc);
-  });
+  const {account,password} = req.query;
+  if(password === undefined){
+    accModel.getAccount(account).then(acc=>{
+      var data = [];
+      var obj = {};
+      console.log(acc[0]);
+      if(acc[0] !== undefined) {
+        obj["account"]=acc[0]["account"];
+        data[0] = obj;
+      }
+      //console.log(acc[0]["account"]);
+      res.json(data);
+
+
+    });
+  } else{
+        console.log(password);
+        accModel.confirmAccount(account.toString(),password.toString()).then(acc=>{
+          var data = [];
+          var obj = {};
+          if(acc[0] !== undefined) {
+            obj["account"]=acc[0]["account"];
+            data[0] = obj;
+          }
+          console.log(acc);
+          res.json(data);
+      });
+    }
 });
+
 // get orderList
 router.get('/order',function(req,res){
   orderModel.getOrderList(req.query.userId).then(orders=>{
@@ -36,6 +62,7 @@ router.post('/confirm',function(req,res){
     res.json(orders);
   });
 });
+
 //create account
 
 router.post('/acc',function(req,res){
