@@ -8,8 +8,13 @@
 6. Change all model to db
 7. Add comfirm account
 8. Add functions for menu (storeModel.js) 2018.05.19
+9. Change setOrder variable names 2018.05.26
+10. Change server.js for local test 2018.05.26
+11. Add env.bat 2018.05.26
 ## How To Run
 1. for mac: $ source ./env.sh </br>
+Remeber to change the env
+2. for window: $ env.bat
 Remeber to change the env
 2. $ node src/model/schema.js </br>
 This step is to create the tables

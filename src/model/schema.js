@@ -13,6 +13,7 @@ const schemaSql =`
     userId          text NOT NULL,
     item            text NOT NULL,
     store           text NOT NULL,
+    locate          text NOT NULL,
     number          integer NOT NULL DEFAULT 0,
     price           integer NOT NULL DEFAULT 0,
     confirm         boolean NOT NULL DEFAULT FALSE,

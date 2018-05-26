@@ -9,7 +9,9 @@ function setOrder(userId,order){
     VALUES ($1,$2,$3,$4,$5,$6)
     RETURNING *
   `;
-  return db.any(sql,[userId,order.item,order.store,order.number,order.price,""]);
+  // return db.any(sql,[userId, order.item, order.store, order.number, order.price,""]);
+    return db.any(sql,[userId, order.mealname, order.storename, order.count, order.mealprice, ""]);
+
   /*
   return new Promise((resolve,reject)=>{
     const orderId = Date.now();
