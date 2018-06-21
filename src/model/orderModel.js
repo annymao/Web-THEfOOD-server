@@ -3,73 +3,50 @@ const fs = require('fs');
 const uuid = require('uuid/v4');
 const moment = require('moment');
 
-function setOrder(userId,order){
+function setOrder (userId, order, lists) {
   const sql = `
-    INSERT INTO orders (userId,item,store,number,price,comment)
-    VALUES ($1,$2,$3,$4,$5,$6)
+    INSERT INTO orders(userId, store, locate, comment)
+    VALUES ($1, $2, $3, $4)
     RETURNING *
   `;
-  // return db.any(sql,[userId, order.item, order.store, order.number, order.price,""]);
-    return db.any(sql,[userId, order.mealname, order.storename, order.count, order.mealprice, ""]);
 
-  /*
-  return new Promise((resolve,reject)=>{
-    const orderId = Date.now();
-    const newOrder = {
-        userId: userId,
-        item: order.item,
-        store: order.store,
-        number: order.number,
-        price: order.price,
-        confirm:false,
-        paid: false,
-        score: 0,
-        comment: "",
-        orderId: orderId
-    };
-    getOrderList().then(orders =>{
-      orders = [
-        newOrder,
-        ...orders
-      ];
-      fs.writeFile('orderList-data.json', JSON.stringify(orders), err => {
-          if (err) reject(err);
-      });
-      resolve(newOrder);
-    });
-  });
-  */
+  const sql_getOrderNum = `
+    SELECT * FROM orders
+    WHERE userId = $1
+    ORDER BY id
+    LIMIT 1
+  `;
+
+  const sql_setList = `
+    INSERT INTO lists(oid, item, number, price)
+    VALUES ($1, $2, $3, $4)
+  `;
+
+  db.any(sql, [userId, order.store_name, order.store_locate, ""])
+    .then(function() {
+      db.any(sql_getOrderNum, [userId])
+        .then(function(data) {
+          for (var i = 0; i < lists.length; i++) {
+            db.any(sql_setList, [data[0].id, lists[i].meal_name, lists[i].meal_num, lists[i].meal_price])
+          }
+      })
+    })
+
 }
 function getOrderList(userId){
-  const where = ` Where userId ILIKE '%$1:value%'`;
-  const sql = `
-      SELECT *
-      FROM orders
-      ${where}
+  const sql_getLists = `
+    SELECT * FROM lists
+    WHERE oid = (
+      SELECT id FROM orders
+      WHERE userId = $1
+      ORDER BY id DESC
+      LIMIT 1
+    )                                                                                                                                                                                          LIMIT 1);
   `;
-  return db.any(sql,userId);
-  /*
-  return new Promise((resolve,reject)=>{
-    if(!fs.existsSync('orderList-data.json')){
-      fs.writeFileSync('orderList-data.json','');
-    }
-    fs.readFile('orderList-data.json', 'utf8', (err, data) => {
-            if (err) reject(err);
 
-            let orders = data ? JSON.parse(data) : [];
-            if (orders.length > 0 && userId) {
-                //console.log(userId)
-                orders = orders.filter(p => {
-                  //console.log(p.userId);
-                    return p.userId==userId;
-
-                });
-            }
-            resolve(orders);
-        });
-
-    });*/
+  return db.any(sql_getLists, [userId]);
 }
+
 function getStoreOrder(storeId){
   const where = ` Where store ILIKE '%$1:value%'`;
   const sql = `
@@ -78,64 +55,55 @@ function getStoreOrder(storeId){
       ${where}
   `;
   return db.any(sql,storeId);
-  /*
-  return new Promise((resolve,reject)=>{
-    if(!fs.existsSync('orderList-data.json')){
-      fs.writeFileSync('orderList-data.json','');
-    }
-    fs.readFile('orderList-data.json', 'utf8', (err, data) => {
-            if (err) reject(err);
-
-            let orders = data ? JSON.parse(data) : [];
-            if (orders.length > 0 && storeId) {
-                console.log(storeId)
-                orders = orders.filter(p => {
-                  console.log(p.store);
-                    return p.store==storeId;
-
-                });
-                resolve(orders);
-            }
-            resolve(null);
-        });
-
-    });
-    */
 }
-function confirmOrder(orderId){
+
+function confirmOrder (orderID) {
   const sql = `
     UPDATE orders
-    SET confirm=TRUE
-    WHERE id=$<orderId>
-    RETURNING *
+    SET confirm = TRUE
+    WHERE id = $1
   `;
-  return db.any(sql,{orderId});
-  /*
-  return new Promise((resolve,reject)=>{
 
-    getOrderList().then(orders =>{
-      orders = orders.filter(p => {
-        console.log(p.orderId == order.orderId);
-        console.log(p.userId != order.userId);
-          return (p.userId != order.userId)||(p.userId == order.userId && p.orderId != order.orderId);
-
-      });
-      order.confirm = true;
-      orders = [
-        order,
-        ...orders
-      ];
-      fs.writeFile('orderList-data.json', JSON.stringify(orders), err => {
-          if (err) reject(err);
-      });
-      resolve();
-    });
-  });
-  */
+  return db.any(sql, [orderID]);
 }
+
+function payOrder (orderID) {
+  const sql = `
+    UPDATE orders
+    SET paid = TRUE
+    WHERE id = $1
+  `;
+
+  return db.any(sql, [orderID]);
+}
+
+function checkOrder (orderID) {
+    const sql = `
+      SELECT *
+      FROM orders
+      WHERE id = $1
+    `;
+
+    return db.any(sql, [orderID]);
+}
+
+function getAllOrders (storeName) {
+  const sql = `
+    SELECT *
+    FROM orders
+    WHERE store = $1
+  `;
+
+  return db.any(sql, [storeName]);
+}
+
+
 module.exports = {
     setOrder,
     getOrderList,
     getStoreOrder,
-    confirmOrder
+    confirmOrder,
+    getAllOrders,
+    checkOrder,
+    payOrder
 };

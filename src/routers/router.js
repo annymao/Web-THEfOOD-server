@@ -1,13 +1,16 @@
 const yargs = require('yargs');
 const accModel = require('../model/accModel.js');
 const orderModel = require('../model/orderModel.js');
+const listModel = require('../model/listModel.js');
 const storeModel = require('../model/storeModel.js');
+const favoriteModel = require('../model/favoriteModel.js');
 const bodyParser = require('body-parser')
 const express = require('express');
 const router = express.Router();
 
 router.use(bodyParser.json());
 
+/* Account */
 // get accounts
 router.get('/acc',function(req,res){
     const {account,password} = req.query;
@@ -26,29 +29,59 @@ router.get('/acc',function(req,res){
 
       });
     } else{
-        console.log(password);
-        accModel.confirmAccount(account.toString(),password.toString()).then(acc=>{
-          var data = [];
-          var obj = {};
-          if(acc[0] !== undefined) {
-            obj["account"]=acc[0]["account"];
-            data[0] = obj;
-          }
-          console.log(acc);
-          res.json(data);
+        const role = req.query.role;
+        accModel.confirmAccount(account.toString(), password.toString(), role.toString())
+          .then(acc => {
+            var data = [];
+            var obj = {};
+            if(acc[0] !== undefined) {
+              data[0] = acc[0];
+            }
+            console.log(acc);
+            res.json(data);
       });
     }
 });
 
-// router.get('/acc',function(req, res) {
-//   accModel.getAccount(req.query.account).then(acc=>{
-//     res.json(acc);
-//   });
-// });
+// create account
+router.post('/acc',function(req, res){
+
+  const mode = req.body.mode;
+  if (mode == 'modify') {
+    const {account, password, newPassword} = req.body;
+    if (!account || !password || !role || !newPassword) {
+      const err = new Error('ERROR : Modify Password');
+      err.status = 400;
+      throw err;
+    }
+    accModel.modifyAccount(account, password, role, newPassword)
+      .then((acc) => {
+        res.json(acc);
+    });
+  } else {
+    const {account, password, role, name, email} = req.body;
+    if (!account || !password || !role || !name || !email) {
+      const err = new Error('ERROR : Create Account');
+      err.status = 400;
+      throw err;
+    }
+    accModel.setAccount(account, password, role, name, email)
+      .then((newAcc) => {
+        res.json(newAcc);
+    });
+  }
+});
+
 // get orderList
-router.get('/order',function(req,res){
-  orderModel.getOrderList(req.query.userId).then(orders=>{
-    res.json(orders);
+router.get('/order',function(req,res) {
+  orderModel.getOrderList(req.query.userId).then(order => {
+    res.json(order);
+  });
+});
+
+router.get('/lists', function(req, res) {
+  listModel.getList(req.query.userId).then(lists => {
+    res.json(lists);
   });
 });
 
@@ -61,38 +94,24 @@ router.get('/store',function(req,res){
 
 //set confirm
 router.post('/confirm',function(req,res){
-
   orderModel.confirmOrder(req.body.orderId).then(orders=>{
     res.json(orders);
   });
 });
 
-//create account
-
-//create account
-router.post('/acc',function(req, res){
-  const {account, password, role} = req.body;
-  if(!account||!password||!role){
-    const err = new Error('account password role is needed');
-    err.status = 400;
-    throw err;
-  }
-  accModel.setAccount(account, password, role).then((newAcc)=>{
-    res.json(newAcc);
-  });
-});
-
 //create order
-router.post('/order',function(req,res){
-  const {userId,order} = req.body;
-  if(!userId||!order){
+router.post('/order',function(req, res){
+  console.log(req.body);
+  console.log(req.body.order.meal);
+  const userId = req.body.uID;
+  const order = req.body.order;
+  const lists = req.body.order.meal;
+  if(!userId || !order || !lists) {
     const err = new Error('userId is needed or no orders');
     err.status = 400;
     throw err;
   }
-  orderModel.setOrder(userId,order).then((newOrder)=>{
-    res.json(newOrder);
-  });
+  orderModel.setOrder(userId, order, lists)
 });
 
 //get getStoreName
@@ -115,6 +134,48 @@ router.get('/meals',function(req,res){
        res.json(names);
     });
   });
+});
+
+/* Vendor API */
+
+router.post('/vendor', function(req, res) {
+  const mode = req.body.mode;
+  const ID = req.body.ID;
+  if(!oID) {
+    const err = new Error('Order ID lost ... ');
+    err.status = 400;
+    throw err;
+  }
+  if (mode == 'confirm') {
+    orderModel.confirmOrder(ID);
+  } else if (mode == 'pay') {
+    orderModel.payOrder(ID);
+  };
+});
+
+router.get('vendor', function(req, res) {
+  const mode = req.body.mode;
+  if (mode == 'check') {
+    orderModel.getAllOrders(req.query.storeName);
+  } else {
+    orderModel.checkOrder(req.query.ID);
+  };
+});
+
+/* Favorite */
+router.get('favorite', function(req, res) {
+  const userID = req.body.userID;
+  favoriteModel.getFavorite(userID);
+});
+
+router.post('favorite', function(req, res) {
+  const mode = req.query.mode;
+  const {userID, storeName, mealName, mealprice} = req.query;
+  if (mode == 'add') {
+    favoriteModel.addFavorite(userID, storeName, mealName, mealPrice);
+  } else {
+    favoriteModel.removeFavorite(userID, storeName, mealName, mealPrice);
+  }
 });
 
 module.exports = router;

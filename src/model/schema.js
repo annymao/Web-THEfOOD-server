@@ -1,31 +1,52 @@
 require('../../config.js');
-    const pgp = require('pg-promise')();
-    db = pgp(process.env.DB_URL);
+
+const pgp = require('pg-promise')();
+db = pgp(process.env.DB_URL);
+
 const schemaSql =`
-  DROP TABLE IF EXISTS orders;
   DROP TABLE IF EXISTS acc;
+  DROP TABLE IF EXISTS favorites;
+  DROP TABLE IF EXISTS lists;
+  DROP TABLE IF EXISTS orders;
   DROP TABLE IF EXISTS store;
   DROP TABLE IF EXISTS meals;
+
+  CREATE TABLE acc(
+    id              serial PRIMARY KEY NOT NULL,
+    account         text NOT NULL,
+    password        text NOT NULL,
+    name            text NOT NULL,
+    email           text NOT NULL,
+    role            text NOT NULL
+  );
+
+  CREATE TABLE favorites (
+    id              serial PRIMARY KEY NOT NULL,
+    userId          integer NOT NULL,
+    storename       text NOT NULL,
+    mealname        text NOT NULL,
+    mealprice       integer NOT NULL DEFAULT 0
+  );
 
 
   CREATE TABLE orders(
     id              serial PRIMARY KEY NOT NULL,
-    userId          text NOT NULL,
-    item            text NOT NULL,
+    userId          integer NOT NULL,
     store           text NOT NULL,
     locate          text NOT NULL,
-    number          integer NOT NULL DEFAULT 0,
-    price           integer NOT NULL DEFAULT 0,
     confirm         boolean NOT NULL DEFAULT FALSE,
     paid            boolean NOT NULL DEFAULT FALSE,
-    score           integer NOT NULL DEFAULT 0,
     comment         text NOT NULL
   );
-  CREATE TABLE acc(
-    account         text NOT NULL,
-    password        text NOT NULL,
-    role            text NOT NULL
+
+  CREATE TABLE lists(
+    oid             integer references orders(id),
+    item            text NOT NULL,
+    number          integer NOT NULL DEFAULT 0,
+    price           integer NOT NULL DEFAULT 0,
+    score           integer
   );
+
   CREATE TABLE store(
     restaurant      text NOT NULL,
     storeId         serial PRIMARY KEY NOT NULL,
@@ -35,6 +56,7 @@ const schemaSql =`
     grades          text NOT NULL,
     open            boolean NOT NULL DEFAULT TRUE
   );
+
   CREATE TABLE meals(
     storename      text NOT NULL,
     mealname       text NOT NULL,
